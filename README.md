@@ -3,7 +3,7 @@ Convolutional Neural Networks for Visual Recognition - Stanford
 
 ### Assignment 1:
 -----------------
-[kNN](google.ca)
+[kNN](https://github.com/jmalloch/CS231n/blob/master/assignment1/knn.ipynb)
 
 SVM
 
