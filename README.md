@@ -5,7 +5,7 @@ Convolutional Neural Networks for Visual Recognition - Stanford
 -----------------
 [kNN](https://github.com/jmalloch/CS231n/blob/master/assignment1/knn.ipynb)
 
-SVM
+[SVM](https://github.com/jmalloch/CS231n/blob/master/assignment1/svm.ipynb)
 
 Softmax
 
