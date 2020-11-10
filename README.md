@@ -7,7 +7,7 @@ Convolutional Neural Networks for Visual Recognition - Stanford
 
 [SVM](https://github.com/jmalloch/CS231n/blob/master/assignment1/svm.ipynb)
 
-Softmax
+[Softmax](https://github.com/jmalloch/CS231n/blob/master/assignment1/softmax.ipynb)
 
 2LayerNN
 
