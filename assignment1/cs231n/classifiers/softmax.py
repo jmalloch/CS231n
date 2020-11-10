@@ -1,3 +1,4 @@
+from math import log
 from builtins import range
 import numpy as np
 from random import shuffle
@@ -32,11 +33,26 @@ def softmax_loss_naive(W, X, y, reg):
     # regularization!                                                           #
     #############################################################################
     # *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
+    for i in range(X.shape[0]):
+        scores = X[i].dot(W)
+        regularized_scores = scores - np.max(scores)
+        exp_scores = np.exp(regularized_scores)
 
-    pass
+        loss -= log(exp_scores[y[i]]/np.sum(exp_scores))
 
-    # *****END OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
-
+        for j in range(W.shape[1]):
+            S_j = exp_scores[j]/np.sum(exp_scores)
+            if j==y[i]:
+                dW[:,j] += X[i] * (S_j-1)
+            else:
+                dW[:,j] += S_j*X[i]
+   
+    loss /= X.shape[0]
+    dW /= X.shape[0]
+    
+    loss += reg * np.sum(W * W)
+    dW  += reg*2*W
+   # *****END OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
     return loss, dW
 
 
@@ -58,8 +74,22 @@ def softmax_loss_vectorized(W, X, y, reg):
     #############################################################################
     # *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
 
-    pass
+    scores = np.matmul(X, W)
+    maxes = np.amax(scores, axis=1)
+    scores = np.exp(scores - maxes[:,None])
+    probs = scores/np.sum(scores, axis = 1).reshape(-1,1)
 
+    loss -= np.sum(np.log(probs[range(X.shape[0]),y]))
+
+    gradient_q = (scores.T/np.sum(scores, axis = 1)).T
+    gradient_q[range(X.shape[0]),y] -= 1
+    dW = np.matmul(X.T, gradient_q)
+
+    loss /= X.shape[0]
+    dW /= X.shape[0]
+    
+    loss += reg * np.sum(W * W)
+    dW  += reg*2*W
     # *****END OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
 
     return loss, dW
