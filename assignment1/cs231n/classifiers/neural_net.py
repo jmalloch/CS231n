@@ -80,7 +80,9 @@ class TwoLayerNet(object):
         #############################################################################
         # *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
 
-        pass
+        scores = np.matmul(np.maximum(0, np.matmul(X, W1) + b1), W2) + b2
+        # X*W1 (N,D * D,H) --> (N,H)
+        # ReLU(X*W1)+b1 * W2 (N,H * H,C) --> (N,C)
 
         # *****END OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
 
@@ -98,7 +100,23 @@ class TwoLayerNet(object):
         #############################################################################
         # *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
 
-        pass
+        e_scores = np.exp(scores - np.amax(scores, axis=1).reshape(-1,1))
+        # calculating exponential of the numerically stabilized scores 
+        # stabilized via subtracting the max score of each row
+        # reshape(-1,1) displays row maxes in an N,1 matrix rather than 1,N
+
+        probs = e_scores/(np.sum(e_scores, axis=1).reshape(-1,1))
+        # calculating "probabilities" for each output class per example
+        # aka exp(class_score)/exp(sum(all_class_scores_from_this_training_sample))
+        # reshape(-1,1) to once again create a column vector as opposed to a row vector
+
+        loss = -np.mean(np.log(probs[range(N), y]))
+        # solving loss (before regularization) in one line
+        # by taking negative mean of the logarithm of probabilities
+        # of the correct class scores only 
+
+        loss += reg*(np.sum(W1 * W1) + np.sum(W2 * W2))
+        # L2 regularization: lambda(reg) * sum(W1^2) + sum(W2^2)
 
         # *****END OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
 
