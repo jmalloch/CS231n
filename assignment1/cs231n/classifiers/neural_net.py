@@ -79,9 +79,11 @@ class TwoLayerNet(object):
         # shape (N, C).                                                             #
         #############################################################################
         # *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
-
-        scores = np.matmul(np.maximum(0, np.matmul(X, W1) + b1), W2) + b2
+        
+        ReLu = np.maximum(0, np.matmul(X, W1) + b1)
         # X*W1 (N,D * D,H) --> (N,H)
+        
+        scores = np.matmul(ReLu, W2) + b2
         # ReLU(X*W1)+b1 * W2 (N,H * H,C) --> (N,C)
 
         # *****END OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
@@ -129,8 +131,40 @@ class TwoLayerNet(object):
         #############################################################################
         # *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
 
-        pass
+        gradient_L2 = probs
+        gradient_L2[np.arange(N), y] -= 1
+        # gradient_L2 <==> probs <==> e_scores <==> scores (NxC)
+        # ReLu (NxH)
+        # W2 (HxC) --> dW2 (HxC)
 
+        gradient_L2 /= N 
+        # gradient was sum over N examples, now is an average
+
+        dW2 = np.matmul(ReLu.T, gradient_L2)
+        # (NxH).T * (NxC) = (HxC) as desired
+
+        dW2 += 2 * reg * W2
+        # regularization
+
+        db2 = np.sum(gradient_L2, axis=0)
+        # b2 gradient is summation of loss gradient by output class
+
+        gradient_L1 = np.matmul(gradient_L2, W2.T)
+        # (NxC) * (CxH) = (NxH) as desired
+        
+        gradient_L1[ReLu==0] = 0
+        # setting gradient to 0 for units that didn't activate
+
+        dW1 = np.matmul(X.T, gradient_L1)
+        # (DxN) * (NxH) = (DxH) as desired
+
+        dW1 += 2 * reg * W1
+        # regularization
+
+        db1 = np.sum(gradient_L1, axis=0)
+        # b1 gradient is summation of 'gradient_L1' by output class
+
+        grads = {'W2': dW2, 'b2': db2, 'W1': dW1, 'b1': db1}
         # *****END OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
 
         return loss, grads
@@ -174,7 +208,9 @@ class TwoLayerNet(object):
             #########################################################################
             # *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
 
-            pass
+            indices = np.random.choice(num_train, batch_size)#, False)
+            X_batch = X[indices]
+            y_batch = y[indices]
 
             # *****END OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
 
@@ -190,7 +226,10 @@ class TwoLayerNet(object):
             #########################################################################
             # *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
 
-            pass
+            self.params['W1'] -= learning_rate*grads['W1']
+            self.params['b1'] -= learning_rate*grads['b1']
+            self.params['W2'] -= learning_rate*grads['W2']
+            self.params['b2'] -= learning_rate*grads['b2']
 
             # *****END OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
 
@@ -236,7 +275,10 @@ class TwoLayerNet(object):
         ###########################################################################
         # *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
 
-        pass
+        ReLu = np.maximum(0, np.matmul(X, self.params['W1']) + self.params['b1'])
+        scores = np.matmul(ReLu, self.params['W2']) + self.params['b2']
+        y_pred = np.argmax(scores, axis=1)
+        
 
         # *****END OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
 
